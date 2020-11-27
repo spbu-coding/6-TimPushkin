@@ -1,0 +1,9 @@
+file(GLOB_RECURSE C_SOURCES ${CMAKE_SOURCE_DIR}/src/*.c ${CMAKE_SOURCE_DIR}/src/*.h)
+
+find_program(MEMORYCHECK_COMMAND valgrind)
+set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full")
+
+add_mocked_test(main SOURCES ${C_SOURCES} MOCKS main)
+
+file(GLOB TEST_DATA ${CMAKE_CURRENT_SOURCE_DIR}/*.txt)
+file(COPY ${TEST_DATA} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
