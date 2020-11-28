@@ -49,12 +49,12 @@ void merge(strings_array_t strs_to_sort, array_size_t strs_num, comparator_func_
 
 void quick_split(strings_array_t strs, unsigned int beg, const unsigned int end, comparator_func_t cmp) {
     while (beg < end) {
-        // Sorting order: [beg, left - 1] -- less than pivot, [left, mid - 1] -- equal to pivot, [right, end - 1] -- greater than pivot
         if ((strs[beg] <= strs[(beg + end - 1) / 2] && strs[(beg + end - 1) / 2] <= strs[end - 1]) || (strs[end - 1] <= strs[(beg + end - 1) / 2] && strs[(beg + end - 1) / 2] <= strs[beg])) {
             SWAP_STRS(strs[beg], strs[(beg + end - 1) / 2])
         } else if ((strs[beg] <= strs[end - 1] && strs[end - 1] <= strs[(beg + end - 1) / 2]) || (strs[(beg + end - 1) / 2] <= strs[end - 1] && strs[end - 1] <= strs[beg])) {
             SWAP_STRS(strs[beg], strs[end - 1])
         }
+        // Partition order: [beg, left - 1] -- less than pivot, [left, mid - 1] -- equal to pivot, [right, end - 1] -- greater than pivot
         unsigned int left = beg, mid = beg + 1, right = end;
         for (unsigned int i = 0; i < end - beg - 1; i++) {
             const int cmp_result = cmp(strs[mid], strs[beg]);

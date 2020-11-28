@@ -56,7 +56,7 @@ int parse_sort_options(struct sort_options_t* const options_container, const int
         message_handle("The 3rd command-line argument is invalid (must be a txt file)\n", error);
         return -1;
     }
-    const char* supported_sort_types[] = SUPPORTED_SORT_TYPES;
+    const char* supported_sort_types[5] = SUPPORTED_SORT_TYPES;
     if (strcmp(argv[4], supported_sort_types[0]) == 0) {
         options_container->sort_type = bubble;
     } else if (strcmp(argv[4], supported_sort_types[1]) == 0) {
@@ -71,7 +71,7 @@ int parse_sort_options(struct sort_options_t* const options_container, const int
         message_handle("The 4th command-line argument is invalid (must be one of the supported sort types)\n", error);
         return -1;
     }
-    const char* supported_comparators[] = SUPPORTED_COMPARATORS;
+    const char* supported_comparators[2] = SUPPORTED_COMPARATORS;
     if (strcmp(argv[5], supported_comparators[0]) == 0) {
         options_container->comparator = asc_cmp;
     } else if (strcmp(argv[5], supported_comparators[1]) == 0) {
@@ -117,19 +117,19 @@ int read_strs(const char* const filename, strings_array_t strs_container, const 
         if (fgets(strs_container[i], MAX_INPUT_STRING_SIZE + 1, file_to_read) == NULL) {
             message_handle("Failed to read given number of strings from the input file\n", error);
             if (fclose(file_to_read) != 0) {
-                message_handle("Also failed to close the file\n", error);
+                message_handle("Also failed to close the input file\n", error);
             }
             return -1;
         }
     }
     if (fclose(file_to_read) != 0) {
-        message_handle("Failed to close given input file after reading\n", error);
+        message_handle("Failed to close the input file after reading\n", error);
         return -1;
     }
     const unsigned int last_char_ind = strlen(strs_container[*strs_num - 1]) - 1;
     if (strs_container[*strs_num - 1][last_char_ind] != '\n') {
         if (last_char_ind == MAX_INPUT_STRING_SIZE - 1) {
-            message_handle("Unsupported strings given (the last string read does not contain LF, but has max length or exceeds it)\n", error);
+            message_handle("Unsupported strings given (the last string read does not contain LF, but has max length)\n", error);
             return -1;
         }
         strs_container[*strs_num - 1][last_char_ind + 1] = '\n';
@@ -141,20 +141,20 @@ int read_strs(const char* const filename, strings_array_t strs_container, const 
 int write_strs(const char* const filename, const strings_array_t strs_container, const array_size_t* const strs_num) {
     FILE* file_to_write = fopen(filename, "wb");
     if (file_to_write == NULL) {
-        message_handle("Failed to open/create given output file\n", error);
+        message_handle("Failed to open/create requested output file\n", error);
         return -1;
     }
     for (unsigned int i = 0; i < *strs_num; i++) {
         if (fputs(strs_container[i], file_to_write) == EOF) {
             message_handle("Failed to write given number of strings to the output file\n", error);
             if (fclose(file_to_write) != 0) {
-                message_handle("Also failed to close the file\n", error);
+                message_handle("Also failed to close the output file\n", error);
             }
             return -1;
         }
     }
     if (fclose(file_to_write) != 0) {
-        message_handle("Failed to close given output file after writing\n", error);
+        message_handle("Failed to close the output file after writing\n", error);
         return -1;
     }
     return 0;
