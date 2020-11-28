@@ -42,8 +42,8 @@ int parse_sort_options(struct sort_options_t* const options_container, const int
         return -1;
     }
     options_container->strs_num = strtoul(argv[1], NULL, 10);
-    if (!options_container->strs_num || !('1' <= argv[1][0] && argv[1][0] <= '9')) {
-        message_handle("The 1st command-line argument is invalid (must be a positive number)\n", error);
+    if ((!options_container->strs_num && argv[1][0] != '0') || !('0' <= argv[1][0] && argv[1][0] <= '9')) {
+        message_handle("The 1st command-line argument is invalid (must be a non-negative number)\n", error);
         return -1;
     }
     options_container->inp_filename = argv[2];
@@ -165,19 +165,21 @@ int main(const int argc, const char* const* const argv) {
     if (parse_sort_options(&sort_options, &argc, argv) != 0) {
         return -1;
     }
-    strings_array_t strs_to_sort = NULL;
-    if (alloc_strs(&strs_to_sort, &sort_options.strs_num) != 0) {
-        return -1;
-    }
-    if (read_strs(sort_options.inp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
+    if (sort_options.strs_num > 0) {
+        strings_array_t strs_to_sort = NULL;
+        if (alloc_strs(&strs_to_sort, &sort_options.strs_num) != 0) {
+            return -1;
+        }
+        if (read_strs(sort_options.inp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
+            dealloc_strs(strs_to_sort, &sort_options.strs_num);
+            return -1;
+        }
+        sort_options.sort_type(strs_to_sort, sort_options.strs_num, sort_options.comparator);
+        if (write_strs(sort_options.otp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
+            dealloc_strs(strs_to_sort, &sort_options.strs_num);
+            return -1;
+        }
         dealloc_strs(strs_to_sort, &sort_options.strs_num);
-        return -1;
     }
-    sort_options.sort_type(strs_to_sort, sort_options.strs_num, sort_options.comparator);
-    if (write_strs(sort_options.otp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
-        dealloc_strs(strs_to_sort, &sort_options.strs_num);
-        return -1;
-    }
-    dealloc_strs(strs_to_sort, &sort_options.strs_num);
     return 0;
 }

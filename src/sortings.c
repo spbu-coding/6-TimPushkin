@@ -1,8 +1,7 @@
-#include <math.h>
-
 #include "sortings.h"
 
 #define SWAP_STRS(str1, str2) char* buf = str1; str1 = str2; str2 = buf;
+#define CEIL_DIV(x, y) (1 + (x - 1) / y)
 
 #define ASCII_LEN 128
 
@@ -25,8 +24,8 @@ void insertion(strings_array_t strs_to_sort, array_size_t strs_num, comparator_f
 }
 
 void merge(strings_array_t strs_to_sort, array_size_t strs_num, comparator_func_t cmp) {
-    for (unsigned int parts_num = strs_num; parts_num > 1; parts_num = (unsigned int) ceil(parts_num / 2.0)) {
-        size_t part_len = (size_t) ceil(strs_num / (double) parts_num);
+    for (unsigned int parts_num = strs_num; parts_num > 1; parts_num = CEIL_DIV(parts_num, 2)) {
+        size_t part_len = (size_t) CEIL_DIV(strs_num, parts_num);
         for (unsigned int i = 0; i < parts_num - 1; i += 2) {
             size_t len1 = part_len, len2 = (((i + 2) * part_len) <= strs_num) ? part_len : (strs_num - (i + 1) * part_len), buf_len = len1 + len2;
             unsigned int ind1 = i * part_len, ind2 = (i + 1) * part_len;
