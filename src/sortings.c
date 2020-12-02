@@ -24,8 +24,7 @@ void insertion(strings_array_t strs_to_sort, array_size_t strs_num, comparator_f
 }
 
 void merge(strings_array_t strs_to_sort, array_size_t strs_num, comparator_func_t cmp) {
-    for (unsigned int parts_num = strs_num; parts_num > 1; parts_num = CEIL_DIV(parts_num, 2)) {
-        size_t part_len = (size_t) CEIL_DIV(strs_num, parts_num);
+    for (unsigned int parts_num = strs_num, part_len = 1; parts_num > 1; parts_num = CEIL_DIV(parts_num, 2), part_len *= 2) {
         for (unsigned int i = 0; i < parts_num - 1; i += 2) {
             size_t len1 = part_len, len2 = (((i + 2) * part_len) <= strs_num) ? part_len : (strs_num - (i + 1) * part_len), buf_len = len1 + len2;
             unsigned int ind1 = i * part_len, ind2 = (i + 1) * part_len;
@@ -80,6 +79,9 @@ void quick(strings_array_t strs_to_sort, array_size_t strs_num, comparator_func_
 }
 
 void radix(strings_array_t strs_to_sort, array_size_t strs_num, comparator_func_t cmp) {
+    if (strs_num == 0) {
+        return;
+    }
     const _Bool is_asc_order = (cmp("a", "b") < 0);
     size_t strs_len[strs_num], max_str_len = 0;
     for (unsigned int i = 0; i < strs_num; i++) {

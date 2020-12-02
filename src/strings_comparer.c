@@ -126,14 +126,16 @@ int read_strs(const char* const filename, strings_array_t strs_container, const 
         message_handle("Failed to close the input file after reading\n", error);
         return -1;
     }
-    const unsigned int last_char_ind = strlen(strs_container[*strs_num - 1]) - 1;
-    if (strs_container[*strs_num - 1][last_char_ind] != '\n') {
-        if (last_char_ind == MAX_INPUT_STRING_SIZE - 1) {
-            message_handle("Unsupported strings given (the last string read does not contain LF, but has max length)\n", error);
-            return -1;
+    if (*strs_num > 0) {
+        const unsigned int last_char_ind = strlen(strs_container[*strs_num - 1]) - 1;
+        if (strs_container[*strs_num - 1][last_char_ind] != '\n') {
+            if (last_char_ind == MAX_INPUT_STRING_SIZE - 1) {
+                message_handle("Unsupported strings given (the last string read does not contain LF, but has max length)\n", error);
+                return -1;
+            }
+            strs_container[*strs_num - 1][last_char_ind + 1] = '\n';
+            strs_container[*strs_num - 1][last_char_ind + 2] = '\0';
         }
-        strs_container[*strs_num - 1][last_char_ind + 1] = '\n';
-        strs_container[*strs_num - 1][last_char_ind + 2] = '\0';
     }
     return 0;
 }
@@ -153,6 +155,13 @@ int write_strs(const char* const filename, const strings_array_t strs_container,
             return -1;
         }
     }
+    if (*strs_num == 0 && fputs("\n", file_to_write) == EOF) {
+        message_handle("Failed to write LF to the output file\n", error);
+        if (fclose(file_to_write) != 0) {
+            message_handle("Also failed to close the output file\n", error);
+        }
+        return -1;
+    }
     if (fclose(file_to_write) != 0) {
         message_handle("Failed to close the output file after writing\n", error);
         return -1;
@@ -165,21 +174,19 @@ int main(const int argc, const char* const* const argv) {
     if (parse_sort_options(&sort_options, &argc, argv) != 0) {
         return -1;
     }
-    if (sort_options.strs_num > 0) {
-        strings_array_t strs_to_sort = NULL;
-        if (alloc_strs(&strs_to_sort, &sort_options.strs_num) != 0) {
-            return -1;
-        }
-        if (read_strs(sort_options.inp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
-            dealloc_strs(strs_to_sort, &sort_options.strs_num);
-            return -1;
-        }
-        sort_options.sort_type(strs_to_sort, sort_options.strs_num, sort_options.comparator);
-        if (write_strs(sort_options.otp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
-            dealloc_strs(strs_to_sort, &sort_options.strs_num);
-            return -1;
-        }
-        dealloc_strs(strs_to_sort, &sort_options.strs_num);
+    strings_array_t strs_to_sort = NULL;
+    if (alloc_strs(&strs_to_sort, &sort_options.strs_num) != 0) {
+        return -1;
     }
+    if (read_strs(sort_options.inp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
+        dealloc_strs(strs_to_sort, &sort_options.strs_num);
+        return -1;
+    }
+    sort_options.sort_type(strs_to_sort, sort_options.strs_num, sort_options.comparator);
+    if (write_strs(sort_options.otp_filename, strs_to_sort, &sort_options.strs_num) != 0) {
+        dealloc_strs(strs_to_sort, &sort_options.strs_num);
+        return -1;
+    }
+    dealloc_strs(strs_to_sort, &sort_options.strs_num);
     return 0;
 }
